@@ -1,19 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
 import "./App.css";
+import { useAtivos } from "./hooks/useAtivos";
 
 function App() {
-
-  const {data, isLoading } = useQuery({
-    queryKey: ['ativos'],
-    queryFn: getAtivos
-  });
-
-  async function getAtivos() {
-    const data = await fetch("http://localhost:3000/api/ativos")
-    return data.json();
-  }
+  const {data, isLoading,  error} = useAtivos();
 
   if (isLoading) return <p>Carregando..</p>;
+  if (error) return <p>Erro ao carregador os dados do servidor.</p>;
 
     return (
     <div className="tabela-ativos-container">
@@ -33,9 +25,9 @@ function App() {
             return (
               <tr key={ativo.id}>
                 <td>{ativo.nome}</td>
-                <td>{ativo.valor_compra}</td>
+                <td>R$ {ativo.valor_compra}</td>
                 <td>{ativo.quantidade}</td>
-                <td>{(ativo.quantidade * ativo.valor_compra).toFixed()}</td>
+                <td>R$ {(ativo.quantidade * ativo.valor_compra)}</td>
                 <td><button>Excluir</button></td>
               </tr>
             )})}
