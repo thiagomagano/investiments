@@ -1,50 +1,45 @@
+import { useQuery } from "@tanstack/react-query";
 import "./App.css";
-import { useState, useEffect } from "react";
 
 function App() {
-  const [ativos, setAtivos] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  function getUser() {
-    fetch("http://localhost:3000/api/ativos")
-          .then((res) => res.json())
-          .then((data) => {
-            setAtivos(data);
-          })
-          .catch((err) => {
-            console.error("Erro ao buscar ativos:", err);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+  const {data, isLoading } = useQuery({
+    queryKey: ['ativos'],
+    queryFn: getAtivos
+  });
+
+  async function getAtivos() {
+    const data = await fetch("http://localhost:3000/api/ativos")
+    return data.json();
   }
 
-  useEffect(() => {
-    getUser();
-  }, [])
-
-  if (loading) return <p>Carregando..</p>;
+  if (isLoading) return <p>Carregando..</p>;
 
     return (
-    <div>
-      <h1>App de investimentos!</h1>
-      <h2>Acompanhe seus ativos:</h2>
-      <table>
-        <th>Nome</th>
-        <th>Valor de compra</th>
-        <th>Qtd</th>
-        <th>Total</th>
-        <th>Deletar</th>
-          {ativos.map(atv => {
+    <div className="tabela-ativos-container">
+      <h1>Confira seus ativos:</h1>
+      <table className="tabela-ativos">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Valor de compra</th>
+          <th>Qtd</th>
+          <th>Total</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+          {data.map(ativo => {
             return (
-              <tr key={atv.id}>
-                <td>{atv.nome}</td>
-                <td>{atv.valor_compra}</td>
-                <td>{atv.quantidade}</td>
-                <td>{(atv.quantidade * atv.valor_compra).toFixed()}</td>
+              <tr key={ativo.id}>
+                <td>{ativo.nome}</td>
+                <td>{ativo.valor_compra}</td>
+                <td>{ativo.quantidade}</td>
+                <td>{(ativo.quantidade * ativo.valor_compra).toFixed()}</td>
                 <td><button>Excluir</button></td>
               </tr>
             )})}
+      </tbody>
       </table>
     </div>
   );
